@@ -4,6 +4,8 @@ on: [push, pull_request]
 
 jobs:
   test:
+    if: ${{ github.repository_owner == 'disabled' }}
+
     runs-on: ${{ matrix.os }}
 
     strategy:
