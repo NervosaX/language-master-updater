@@ -171,8 +171,6 @@
       "package.json"
     ],
     "mac": {
-      "sign": ".erb/scripts/notarize.js",
-      "notarize": false,
       "target": {
         "target": "default",
         "arch": [
@@ -221,7 +219,7 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "language-master-updater",
+      "owner": "NervosaX",
       "repo": "language-master-updater"
     }
   },
