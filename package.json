@@ -200,12 +200,23 @@
     },
     "win": {
       "target": [
-        "portable"
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
       ]
     },
     "linux": {
       "target": [
-        "AppImage"
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "category": "Development"
     },
