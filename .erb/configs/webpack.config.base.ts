@@ -20,11 +20,8 @@ const configuration: webpack.Configuration = {
         use: {
           loader: 'ts-loader',
           options: {
-            // Remove this line to enable type checking in webpack builds
-            transpileOnly: true,
-            compilerOptions: {
-              module: 'esnext',
-            },
+            // // Remove this line to enable type checking in webpack builds
+            // transpileOnly: true,
           },
         },
       },

@@ -8,14 +8,24 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import fs from 'node:fs';
 import path from 'path';
-import { session, app, BrowserWindow, shell, ipcMain } from 'electron';
+import {
+  app,
+  dialog,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  IpcMainInvokeEvent,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
+import { getApplications, getDownloadPath, downloadTools } from './api';
+
+// const store = new Store();
+//
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -126,24 +136,34 @@ app.on('window-all-closed', () => {
   }
 });
 
-async function foo() {
-  return fs.mkdirSync('/tmp/bar/');
-}
-
 app
   .whenReady()
   .then(() => {
-    ipcMain.handle('foo', foo);
-
-    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      /* eslint-disable promise/no-callback-in-promise */
-      callback({
-        responseHeaders: {
-          ...details.responseHeaders,
-          'Access-Control-Allow-Origin': ['*'],
-        },
+    ipcMain.handle('getApplications', getApplications);
+    ipcMain.handle(
+      'downloadTools',
+      async (_event: IpcMainInvokeEvent, appName: string, version: string) => {
+        await downloadTools(appName, version, (progress: number) => {
+          mainWindow?.webContents.send('download-progress', progress);
+        });
+      },
+    );
+    ipcMain.handle('getDownloadPath', getDownloadPath);
+    ipcMain.handle('select-directory', async (): Promise<string | null> => {
+      if (!mainWindow) {
+        return null;
+      }
+      const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory'],
       });
-      /* eslint-enable promise/no-callback-in-promise */
+      const filePath = result.filePaths[0];
+
+      const Store = (await import('electron-store')).default;
+
+      const store = new Store();
+      store.set('download-path', filePath);
+
+      return filePath;
     });
 
     createWindow();

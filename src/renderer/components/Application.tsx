@@ -1,19 +1,39 @@
+import { useState, useEffect } from 'react';
 import { Box } from '@mui/system';
 import { RefreshCw, Download } from 'lucide-react';
-import { IconButton } from '@mui/material';
-
+import { IconButton, CircularProgress } from '@mui/material';
 import Typography from './Typography';
+import { useDownloadApplication } from '../queries';
+import { ApplicationResponse } from '../../main/api';
 
-type Props = {
-  title: string;
-  currentVersion?: string;
-  latestVersion: string;
+type Props = ApplicationResponse & {
   sx?: object;
 };
 
-function Application({ sx, title, currentVersion, latestVersion }: Props) {
-  const isInstalled = Boolean(currentVersion);
-  const hasUpdate = isInstalled && currentVersion !== latestVersion;
+function Application({
+  sx,
+  title,
+  description = '',
+  installedVersion,
+  latestVersion,
+}: Props) {
+  const { mutate, isPending } = useDownloadApplication(title, latestVersion);
+
+  const isInstalled = Boolean(installedVersion);
+  const hasUpdate = isInstalled && installedVersion !== latestVersion;
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+
+  const handleClick = () => {
+    if (!isInstalled) {
+      mutate();
+    }
+  };
+
+  useEffect(() => {
+    window.api.onDownloadProgress((progress: number) => {
+      setDownloadProgress(progress === 100 ? null : progress);
+    });
+  }, []);
 
   let icon = null;
 
@@ -28,26 +48,36 @@ function Application({ sx, title, currentVersion, latestVersion }: Props) {
       <Typography variant="header2">{title}</Typography>
       <Box mt={1} display="flex">
         <Typography variant="body1" sx={{ flex: 1 }}>
-          The ULTIMATE extension for language learning through video websites,
-          providing powerful tools to help you learn through immersive video
-          experiences.
+          {description}
         </Typography>
         <Box minWidth={80} display="flex" justifyContent="end">
-          {icon && <IconButton>{icon}</IconButton>}
+          {!isPending ? (
+            icon && <IconButton onClick={handleClick}>{icon}</IconButton>
+          ) : (
+            <CircularProgress
+              variant={downloadProgress ? 'determinate' : 'indeterminate'}
+              value={downloadProgress ?? 0}
+              size={30}
+            />
+          )}
         </Box>
       </Box>
-      {currentVersion && (
+      {installedVersion ? (
         <Box mt={3} display="flex">
           <Typography variant="body2" sx={{ flex: 1 }}>
-            {currentVersion}
+            Version {installedVersion} installed
           </Typography>
           <Typography variant="body2">
             {hasUpdate ? (
-              <>Verson {latestVersion} available</>
+              <>Version {latestVersion} available</>
             ) : (
-              <>Latest version</>
+              <>Up to date</>
             )}
           </Typography>
+        </Box>
+      ) : (
+        <Box mt={1} display="flex">
+          Version {latestVersion} available
         </Box>
       )}
     </Box>

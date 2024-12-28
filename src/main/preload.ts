@@ -25,7 +25,13 @@ const electronHandler = {
 };
 
 const apiHandler = {
-  foo: () => ipcRenderer.invoke('foo'),
+  getApplications: () => ipcRenderer.invoke('getApplications'),
+  downloadTools: (appName: string, version: string) =>
+    ipcRenderer.invoke('downloadTools', appName, version),
+  getDownloadPath: () => ipcRenderer.invoke('getDownloadPath'),
+  onDownloadProgress: (callback: Function) =>
+    ipcRenderer.on('download-progress', (_event, value) => callback(value)),
+  selectDirectory: () => ipcRenderer.invoke('select-directory'),
 };
 
 contextBridge.exposeInMainWorld('api', apiHandler);
