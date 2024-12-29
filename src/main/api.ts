@@ -4,24 +4,26 @@ import fs from 'fs';
 import axios from 'axios';
 import AdmZip from 'adm-zip';
 
-const descriptions: { [key: string]: string } = {
-  'Video Tools':
-    'The ULTIMATE extension for language learning through video websites, providing powerful tools to help you learn through immersive video experiences.',
-  MasterLingQ:
-    'The ULTIMATE extension for enhancing the experience on LingQ.com, the language learning giant. Make the most of your LingQ learning with added features and improvements.',
-};
-
 export type ApplicationResponse = {
   title: string;
   description: string | null;
   latestVersion: string;
   installedVersion: string | null;
+  patchNotes: { version: string; date: string; notes: string[] }[];
+};
+
+type ProductData = {
+  latestVersion: string;
+  minimumVersion: string;
+  notes: string;
+  description: string;
+  patch: { [version: string]: { date: string; changes: string[] } }[];
 };
 
 type LatestVersionResponse = {
   latestVersion: { [key: string]: string };
   minimumVersion: { [key: string]: string };
-  notes: { [key: string]: string };
+  products: { [key: string]: ProductData };
 };
 
 /**
@@ -50,14 +52,14 @@ export async function getApplications(): Promise<ApplicationResponse[]> {
   );
 
   const downloadPath = await getDownloadPath();
-  const { latestVersion } = resp.data;
+  const { products } = resp.data;
 
-  return Object.entries(latestVersion)
-    .filter(([title]: [string, string]) => {
+  return Object.entries(products)
+    .filter(([title]: [string, ProductData]) => {
       // TODO: For now, only allow video tools to show up here
       return title === 'Video Tools';
     })
-    .map(([title, version]: [string, string]) => {
+    .map(([title, product]: [string, ProductData]) => {
       let installedVersion = null;
 
       if (downloadPath) {
@@ -75,9 +77,14 @@ export async function getApplications(): Promise<ApplicationResponse[]> {
 
       return {
         title,
-        description: descriptions[title] ?? null,
-        latestVersion: version.toString(),
+        description: product.description,
+        latestVersion: product.latestVersion.toString(),
         installedVersion,
+        patchNotes: product.patch.flatMap((obj) => {
+          return Object.entries(obj).map(([version, data]) => {
+            return { version, date: data.date, notes: data.changes };
+          });
+        }),
       };
     });
 }

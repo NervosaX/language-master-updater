@@ -12,8 +12,8 @@ declare module '@mui/material/styles' {
 
 export default createTheme({
   palette: {
-    background: {
-      primary: '#df153b',
+    primary: {
+      main: '#df153b',
     },
     typography: {
       header1: {

@@ -17,6 +17,7 @@ module.exports = {
     'import/no-relative-packages': 'off',
     'import/prefer-default-export': 'off',
     'react/no-unescaped-entities': 'off',
+    'react/no-unstable-nested-components': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

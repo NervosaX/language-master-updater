@@ -1,4 +1,3 @@
-import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 
 import AppContainer from './AppContainer';
@@ -7,6 +6,7 @@ import Typography from './Typography';
 
 import { useApplications, useDownloadPath } from '../queries';
 import { ApplicationResponse } from '../../main/api';
+import { Anchor } from './Anchor';
 
 export default function Applications() {
   const queryClient = useQueryClient();
@@ -25,18 +25,7 @@ export default function Applications() {
     <>
       <Typography variant="subheader" sx={{ mb: 4 }}>
         Applications installed to directory {downloadPath}. &nbsp;
-        <Box
-          component="button"
-          sx={{
-            background: 'none',
-            border: 'none',
-            padding: 0,
-            color: '#fff',
-            fontWeight: 500,
-            fontFamily: 'Rubik Variable, sans-serif',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-          }}
+        <Anchor
           onClick={async () => {
             await window.api.selectDirectory();
 
@@ -45,13 +34,19 @@ export default function Applications() {
           }}
         >
           Change directory?
-        </Box>
+        </Anchor>
       </Typography>
       {Boolean(installedApps.length) && (
         <AppContainer title="Installed">
           {installedApps.map((item: ApplicationResponse, index: number) => {
-            const { title, description, latestVersion, installedVersion } =
-              item;
+            const {
+              title,
+              description,
+              latestVersion,
+              installedVersion,
+              patchNotes,
+            } = item;
+
             return (
               <Application
                 sx={{ mt: index > 0 ? 4 : 0 }}
@@ -59,6 +54,7 @@ export default function Applications() {
                 installedVersion={installedVersion}
                 description={description}
                 title={title}
+                patchNotes={patchNotes}
                 key={title}
               />
             );
@@ -71,8 +67,14 @@ export default function Applications() {
           sx={{ mt: installedApps.length ? 4 : 0 }}
         >
           {uninstalledApps.map((item: ApplicationResponse, index: number) => {
-            const { title, description, latestVersion, installedVersion } =
-              item;
+            const {
+              title,
+              description,
+              latestVersion,
+              installedVersion,
+              patchNotes,
+            } = item;
+
             return (
               <Application
                 sx={{ mt: index > 0 ? 4 : 0 }}
@@ -80,6 +82,7 @@ export default function Applications() {
                 installedVersion={installedVersion}
                 description={description}
                 title={title}
+                patchNotes={patchNotes}
                 key={title}
               />
             );

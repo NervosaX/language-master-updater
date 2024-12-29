@@ -1,7 +1,11 @@
 import './App.css';
 import '@fontsource-variable/rubik';
 
-import { QueryClientProvider } from '@tanstack/react-query';
+import {
+  QueryErrorResetBoundary,
+  QueryClientProvider,
+} from '@tanstack/react-query';
+import { Button } from '@mui/material';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
@@ -11,10 +15,12 @@ import Logo from './components/Logo';
 import Loading from './components/Loading';
 
 import theme from './theme';
+import Typography from './components/Typography';
 import { useDownloadPath } from './queries';
 import Applications from './components/Applications';
 import ChooseDirectory from './components/ChooseDirectory';
 import { queryClient } from './query-client';
+import AppContainer from './components/AppContainer';
 
 function Layout() {
   const downloadPath = useDownloadPath();
@@ -27,7 +33,7 @@ export default function App() {
       <ReactQueryDevtools initialIsOpen={false} />
       <ThemeProvider theme={theme}>
         <Box
-          sx={{ backgroundColor: 'background.primary' }}
+          sx={{ backgroundColor: 'primary.main' }}
           display="flex"
           flexDirection="column"
           flex={1}
@@ -35,11 +41,36 @@ export default function App() {
         >
           <Logo />
           <Box mt={4}>
-            <ErrorBoundary fallback={<div>Something went wrong</div>}>
-              <Suspense fallback={<Loading />}>
-                <Layout />
-              </Suspense>
-            </ErrorBoundary>
+            <QueryErrorResetBoundary>
+              {({ reset }) => (
+                <ErrorBoundary
+                  onReset={reset}
+                  fallbackRender={({ resetErrorBoundary }) => (
+                    <AppContainer>
+                      <Typography
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        There was an error!
+                        <Button
+                          variant="outlined"
+                          onClick={() => resetErrorBoundary()}
+                        >
+                          Reload
+                        </Button>
+                      </Typography>
+                    </AppContainer>
+                  )}
+                >
+                  <Suspense fallback={<Loading />}>
+                    <Layout />
+                  </Suspense>
+                </ErrorBoundary>
+              )}
+            </QueryErrorResetBoundary>
           </Box>
         </Box>
       </ThemeProvider>

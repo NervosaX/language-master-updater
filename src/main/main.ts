@@ -17,22 +17,10 @@ import {
   ipcMain,
   IpcMainInvokeEvent,
 } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
 import { getApplications, getDownloadPath, downloadTools } from './api';
-
-// const store = new Store();
-//
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -118,16 +106,11 @@ const createWindow = async () => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
-
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  // new AppUpdater();
 };
 
 /**
  * Add event listeners...
  */
-
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
