@@ -36,7 +36,7 @@ function Application({
   const hasUpdate = isInstalled && installedVersion !== latestVersion;
 
   const handleClick = () => {
-    if (!isInstalled) {
+    if (!isInstalled || hasUpdate) {
       mutate();
     }
   };

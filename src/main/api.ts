@@ -140,7 +140,7 @@ export async function downloadTools(
     const zip = new AdmZip(archivePath);
 
     if (fs.existsSync(unpackedDir)) {
-      fs.rmSync(unpackedDir);
+      fs.rmSync(unpackedDir, { recursive: true, force: true });
     }
 
     zip.extractAllTo(unpackedDir, true);
